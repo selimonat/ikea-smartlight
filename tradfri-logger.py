@@ -35,6 +35,9 @@ import ConfigParser
 from tradfri import tradfriStatus
 from tqdm import tqdm
 
+import logging
+logging.basicConfig(filename='/home/pi/ikea_lamps.log',level=logging.DEBUG,format='%(message)s')
+
 def main():
     """ main function """
     conf = ConfigParser.ConfigParser()
@@ -63,19 +66,19 @@ def main():
     for groupid in tqdm(range(len(groups)), desc='Tradfri groups', unit=' group'):
         lightgroup.append(tradfriStatus.tradfri_get_group(hubip, apiuser, apikey,
                                                           str(groups[groupid])))
-
     print('[+] Tradfri: device information gathered')
     print('===========================================================\n')
+    out = ""
     for _ in range(len(lightbulb)):
         try:
             brightness = lightbulb[_]["3311"][0]["5851"]
             try:
-                warmth     = float(lightbulb[_]["3311"][0]["5711"])
-                warmth     = round((warmth-250)/(454-250)*100,1)# reported as a percentage (100% maximum warmth)
+                warmth = float(lightbulb[_]["3311"][0]["5711"])
+                warmth = round((warmth-250)/(454-250)*100,1)# reported as a percentage (100% maximum warmth)
             except KeyError:
                 warmth = "NAN"
-
-            if lightbulb[_]["3311"][0]["5850"] == 0:
+            state      = lightbulb[_]["3311"][0]["5850"]
+            if state == 0:
                 print('bulb ID {0:<5}, name: {1: <35}, brightness: {2: <3}, warmth: {3: >5}%, state: off'
                       .format(lightbulb[_]["9003"], lightbulb[_]["9001"],
                               brightness,warmth))
@@ -83,10 +86,12 @@ def main():
                 print('bulb ID {0:<5}, name: {1: <35}, brightness: {2: <3}, warmth: {3: >5}%, state: on'
                       .format(lightbulb[_]["9003"], lightbulb[_]["9001"],
                               brightness,warmth))
+            out = out + str(lightbulb[_]["9003"]) + " " + str(brightness) + " " + str(warmth) + " " + str(state) + " "
         except KeyError:
             # device is not a lightbulb but a remote control, dimmer or sensor
             pass
-
+    out = out + " " + str(time.strftime("%a %d %b %H:%M:%S CET %Y")) + " " + str(round(time.time()))
+    logging.info(out)
     print('\n')
 
     for _ in range(len(lightgroup)):
