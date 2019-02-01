@@ -86,7 +86,7 @@ def main():
                 print('bulb ID {0:<5}, name: {1: <35}, brightness: {2: <3}, warmth: {3: >5}%, state: on'
                       .format(lightbulb[_]["9003"], lightbulb[_]["9001"],
                               brightness,warmth))
-            out = out + str(lightbulb[_]["9003"]) + " " + str(brightness) + " " + str(warmth) + " " + str(state) + " "
+            out = out + str(lightbulb[_]["9001"]) + " " + str(brightness) + " " + str(warmth) + " " + str(state) + " "
         except KeyError:
             # device is not a lightbulb but a remote control, dimmer or sensor
             pass
