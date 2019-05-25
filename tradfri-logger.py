@@ -69,6 +69,7 @@ def main():
     print('[+] Tradfri: device information gathered')
     print('===========================================================\n')
     out = ""
+    time_now  = str(round(time.time()))
     for _ in range(len(lightbulb)):
         try:
             brightness = lightbulb[_]["3311"][0]["5851"]
@@ -86,11 +87,16 @@ def main():
                 print('bulb ID {0:<5}, name: {1: <35}, brightness: {2: <3}, warmth: {3: >5}%, state: on'
                       .format(lightbulb[_]["9003"], lightbulb[_]["9001"],
                               brightness,warmth))
-            out = out + str(lightbulb[_]["9001"]) + " " + str(brightness) + " " + str(warmth) + " " + str(state) + " "
+            out = out + "{}\t{:.0f}\t{:.0f}\t{:.0f}\t{:.0f}\n".format( lightbulb[_]["9001"],
+                                                   float(brightness),
+                                                   float(warmth),
+                                                   float(state),
+                                                   float(time_now)
+                                                        )
         except KeyError:
             # device is not a lightbulb but a remote control, dimmer or sensor
             pass
-    out = out + " " + str(time.strftime("%a %d %b %H:%M:%S CET %Y")) + " " + str(round(time.time()))
+    out = out[:-1] 
     logging.info(out)
     print('\n')
 
